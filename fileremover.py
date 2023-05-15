@@ -12,13 +12,14 @@ class FileRemover:
 
     def _get_files(self, path):
         files_and_folders = {}
-        for f in listdir(path):
+        for f in sorted(listdir(path)):
             subpath = join(path, f)
             if isdir(subpath):
                 files_and_folders[f] = self._get_files(subpath)
             elif isfile(subpath):
                 files_and_folders[f] = subpath
         return files_and_folders
+
 
     def _print_files(self, files_dict, level):
         for key in files_dict:
@@ -75,7 +76,8 @@ if __name__ == '__main__':
                 FileRemover = FileRemover(path)
                 FileRemover.remove_files(extensions)
             else:
-                assert False, "Error: unknown argument " + arg
+                print("Error: unknown argument " + arg, file=sys.stderr)
+                sys.exit(1)
     else:
         assert False, "Error: no arguments provided"
 

@@ -2,8 +2,6 @@ import sys
 from os import listdir, remove, walk
 from os.path import isfile, join, isdir
 
-#python3 main.py --path /mnt/d/Documents/Projets/file-sort/example_path --view --rm json pdf 
-
 class FileRemover:
     def __init__(self, path):
         self.path = path
@@ -31,22 +29,12 @@ class FileRemover:
 
     def remove_files(self, extensions):
         extensionsList = extensions.split(',')
-        for i, extension in enumerate(extensionsList):
-            if not extension.startswith('.'):
-                assert False, "L'extension doit commencer par un point"
-        print(extensionsList)
-
         dict = self.files_dict
         for extension in extensionsList:
             allDirectoriesFiles = self._get_all_directories(dict)
-        if extensions == "all":
-            for dirfiles in allDirectoriesFiles:
-                # remove(dirfiles)
-                print(dirfiles + " removed")
-        else:
             for dirfiles in allDirectoriesFiles:
                 if dirfiles.endswith(extension):
-                    # remove(dirfiles)
+                    remove(dirfiles)
                     print(dirfiles + " removed")
 
     def _get_all_directories(self, d):
@@ -58,20 +46,38 @@ class FileRemover:
                 result.append(value)
         return result
 
+
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         path = None
         extensions = []
-        for i, arg in enumerate(sys.argv):
+        skip_next = False
+        for i in range(1, len(sys.argv)):
+            if skip_next:
+                skip_next = False
+                continue
+            arg = sys.argv[i]
             if arg == "--path" and i+1 < len(sys.argv):
                 path = sys.argv[i+1]
+                skip_next = True
             elif arg == "--view":
+                if path is None:
+                    assert False, "Error: --path argument is required"
                 print('\n')
                 FileRemover = FileRemover(path)
                 FileRemover.view_files()
                 print('\n')
             elif (arg == "--rm" or arg == "--remove") and i+1 < len(sys.argv):
+                if path is None:
+                    assert False, "Error: --path argument is required"
                 extensions = sys.argv[i+1]
+                skip_next = True
+                FileRemover = FileRemover(path)
                 FileRemover.remove_files(extensions)
+            else:
+                assert False, "Error: unknown argument " + arg
     else:
-        print('Aucun argument n\'as été indiqué')
+        assert False, "Error: no arguments provided"
+
+
+

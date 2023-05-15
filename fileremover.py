@@ -63,14 +63,16 @@ if __name__ == '__main__':
                 skip_next = True
             elif arg == "--view":
                 if path is None:
-                    assert False, "Error: --path argument is required"
+                    print("Error: --path argument is required", file=sys.stderr)
+                    sys.exit(1)
                 print('\n')
                 FileRemover = FileRemover(path)
                 FileRemover.view_files()
                 print('\n')
             elif (arg == "--rm" or arg == "--remove") and i+1 < len(sys.argv):
                 if path is None:
-                    assert False, "Error: --path argument is required"
+                    print("Error: --path argument is required", file=sys.stderr)
+                    sys.exit(1)
                 extensions = sys.argv[i+1]
                 skip_next = True
                 FileRemover = FileRemover(path)
@@ -79,7 +81,8 @@ if __name__ == '__main__':
                 print("Error: unknown argument " + arg, file=sys.stderr)
                 sys.exit(1)
     else:
-        assert False, "Error: no arguments provided"
+        print("Error: missing arguments", file=sys.stderr)
+        sys.exit(1)
 
 
 

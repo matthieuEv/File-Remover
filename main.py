@@ -29,16 +29,25 @@ class FileRemover:
             if isinstance(value, dict):
                 self._print_files(value, level + 1)
 
-
     def remove_files(self, extensions):
         extensionsList = extensions.split(',')
+        for i, extension in enumerate(extensionsList):
+            if not extension.startswith('.'):
+                assert False, "L'extension doit commencer par un point"
+        print(extensionsList)
+
         dict = self.files_dict
         for extension in extensionsList:
             allDirectoriesFiles = self._get_all_directories(dict)
-        for dirfiles in allDirectoriesFiles:
-            if dirfiles.endswith(extension):
-                remove(dirfiles)
+        if extensions == "all":
+            for dirfiles in allDirectoriesFiles:
+                # remove(dirfiles)
                 print(dirfiles + " removed")
+        else:
+            for dirfiles in allDirectoriesFiles:
+                if dirfiles.endswith(extension):
+                    # remove(dirfiles)
+                    print(dirfiles + " removed")
 
     def _get_all_directories(self, d):
         result = []
@@ -63,7 +72,6 @@ if __name__ == '__main__':
                 print('\n')
             elif (arg == "--rm" or arg == "--remove") and i+1 < len(sys.argv):
                 extensions = sys.argv[i+1]
-                FileRemover = FileRemover(path)
                 FileRemover.remove_files(extensions)
     else:
         print('Aucun argument n\'as été indiqué')

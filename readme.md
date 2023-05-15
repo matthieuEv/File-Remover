@@ -6,8 +6,12 @@ This is a simple script that removes files from a directory based on the extensi
 
 ## Usage
 
+First, download the script and put it wherever you want.
+
+Then, you can use it with the following command:
+
 ```bash
-python3 <file name> <arguments>
+python3 fileremover.py <arguments>
 ```
 
 | Argument | Description | Needed |
@@ -20,8 +24,8 @@ python3 <file name> <arguments>
 ## Example
 
 ```bash
-python3 file_remover.py --path /home/user/Downloads --rm .pdf,.zip,.tar.gz --view
+python3 fileremover.py --path /home/user/Downloads --rm .pdf,.zip,.tar.gz --view
 ```
 ```bash
-python3 file_remover.py --path /home/user/Downloads --view --rm all --view
+python3 fileremover.py --path /home/user/Downloads --view --rm all --view
 ```

@@ -58,7 +58,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.tag_version.outputs.new_tag }}
+          tag_name: Release
           release_name: Release ${{ steps.tag_version.outputs.new_tag }}
           body: Voila la nouvelle version de FileRemover 🔥
           draft: false

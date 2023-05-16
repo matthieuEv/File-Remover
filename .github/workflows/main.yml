@@ -58,7 +58,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: Release
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
           release_name: Release ${{ steps.tag_version.outputs.new_tag }}
           body: Voila la nouvelle version de FileRemover 🔥
           draft: false
@@ -70,11 +70,25 @@ jobs:
           path: artifact
   
       - name: Upload artifacts to release
-        uses: softprops/action-gh-release@v1
+        uses: actions/github-script@v5
         with:
-          files: |
-            artifact/windows-latest/*
-            artifact/ubuntu-latest/*
-          token: ${{ secrets.GITHUB_TOKEN }}
-        
-            
+          script: |
+            const fs = require('fs');
+            const artifactPath = '${{github.workspace}}/artifact';
+            const files = fs.readdirSync(artifactPath);
+            for (const file of files) {
+              const filePath = `${artifactPath}/${file}`;
+              if (fs.lstatSync(filePath).isDirectory()) {
+                continue;
+              }
+              const fileStream = fs.createReadStream(filePath);
+              await github.repos.uploadReleaseAsset({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: ${{steps.create_release.outputs.id}},
+                name: `${{ matrix.os }}-${file}`,
+
+                data: fileStream,
+              });
+            }
+          

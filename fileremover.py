@@ -14,6 +14,10 @@ class FileRemover:
 
     def _get_files(self, path):
         files_and_folders = {}
+        # test if the path given exists
+        if isdir(path) is False:
+            print("Error: the path given is not found", file=sys.stderr)
+            sys.exit(1)
         for f in sorted(listdir(path)):
             subpath = join(path, f)
             if isdir(subpath):

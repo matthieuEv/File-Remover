@@ -18,7 +18,11 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          repository: File-Remover
+          ref: master
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -34,6 +38,7 @@ jobs:
         with:
           name: ${{ matrix.os }}
           path: build/exe.*
+  
 
   release:
     needs: build

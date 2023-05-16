@@ -1,9 +1,15 @@
-name: Build
+name: Build and Test
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -33,38 +39,38 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
+        - name: Create Release
+          id: create_release
+          uses: actions/create-release@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            tag_name: ${{ github.ref }}
+            release_name: Release ${{ github.ref }}
+            draft: false
+            prerelease: false
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
+        - name: Download artifacts
+          uses: actions/download-artifact@v2
 
-      - name: Upload artifacts to release
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const fs = require('fs');
-            const artifactPath = '${{github.workspace}}/artifact';
-            const files = fs.readdirSync(artifactPath);
-            for (const file of files) {
-              const filePath = `${artifactPath}/${file}`;
-              if (fs.lstatSync(filePath).isDirectory()) {
+        - name: Upload artifacts to release
+          uses: actions/github-script@v5
+          with:
+            script: |
+              const fs = require('fs');
+              const artifactPath = '${{github.workspace}}/artifact';
+              const files = fs.readdirSync(artifactPath);
+              for (const file of files) {
+                const filePath = `${artifactPath}/${file}`;
+                if (fs.lstatSync(filePath).isDirectory()) {
                 continue;
-              }
-              const fileStream = fs.createReadStream(filePath);
-              await github.repos.uploadReleaseAsset({
+                }
+                const fileStream = fs.createReadStream(filePath);
+                await github.repos.uploadReleaseAsset({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 release_id: ${{steps.create_release.outputs.id}},
                 name: file,
                 data: fileStream,
-              });
-            }
+                });
+              }

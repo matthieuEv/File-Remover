@@ -70,29 +70,11 @@ jobs:
           path: artifact
   
       - name: Upload artifacts to release
-        uses: actions/github-script@v5
+        uses: softprops/action-gh-release@v1
         with:
-          script: |
-            const fs = require('fs');
-            const artifactPath = '${{github.workspace}}/artifact';
-            const osList = ['windows-latest', 'ubuntu-latest'];
-            
-            for (const os of osList) {
-              const osArtifactPath = `${artifactPath}/${os}`;
-              const files = fs.readdirSync(osArtifactPath);
-              for (const file of files) {
-                const filePath = `${osArtifactPath}/${file}`;
-                if (fs.lstatSync(filePath).isDirectory()) {
-                  continue;
-                }
-                const fileStream = fs.createReadStream(filePath);
-                await github.repos.uploadReleaseAsset({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  release_id: ${{steps.create_release.outputs.id}},
-                  name: `${os}-${file}`,
-                  data: fileStream,
-                });
-              }
-            }
+          files: |
+            artifact/windows-latest/*
+            artifact/ubuntu-latest/*
+          token: ${{ secrets.GITHUB_TOKEN }}
+        
             

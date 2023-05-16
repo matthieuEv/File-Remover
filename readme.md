@@ -1,5 +1,5 @@
 # FileRemover
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/matthieuEv/File-Remover/python-app.yml?style=for-the-badge)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/matthieuEv/File-Remover/main.yml?style=for-the-badge)
 ![GitHub](https://img.shields.io/github/license/matthieuEv/File-Remover?style=for-the-badge)
 ## Description
 This is a simple script that removes files from a directory based on the extension of the file.

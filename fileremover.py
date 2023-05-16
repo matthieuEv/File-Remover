@@ -1,11 +1,13 @@
 import sys
-from os import listdir, remove, walk
+from os import listdir, remove
 from os.path import isfile, join, isdir
+from time import sleep
 
 class FileRemover:
     def __init__(self, path):
         self.path = path
         self.files_dict = self._get_files(self.path)
+        sleep(1)
 
     def view_files(self):
         self._print_files(self.files_dict, 0)
@@ -30,6 +32,11 @@ class FileRemover:
 
     def remove_files(self, extensions):
         extensionsList = extensions.split(',')
+        for ext in extensionsList:
+            if ext.startswith('.') is False:
+                    print("Error: the extension to remove don't start with a dot", file=sys.stderr)
+                    sys.exit(1)
+        extensionsList.append(':Zone.Identifier')
         dict = self.files_dict
         for extension in extensionsList:
             allDirectoriesFiles = self._get_all_directories(dict)
@@ -47,7 +54,6 @@ class FileRemover:
                 result.append(value)
         return result
 
-
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         path = None
@@ -60,13 +66,13 @@ if __name__ == '__main__':
             arg = sys.argv[i]
             if arg == "--path" and i+1 < len(sys.argv):
                 path = sys.argv[i+1]
+                FileRemover = FileRemover(path)
                 skip_next = True
             elif arg == "--view":
                 if path is None:
                     print("Error: --path argument is required", file=sys.stderr)
                     sys.exit(1)
                 print('\n')
-                FileRemover = FileRemover(path)
                 FileRemover.view_files()
                 print('\n')
             elif (arg == "--rm" or arg == "--remove") and i+1 < len(sys.argv):
@@ -75,7 +81,6 @@ if __name__ == '__main__':
                     sys.exit(1)
                 extensions = sys.argv[i+1]
                 skip_next = True
-                FileRemover = FileRemover(path)
                 FileRemover.remove_files(extensions)
             else:
                 print("Error: unknown argument " + arg, file=sys.stderr)

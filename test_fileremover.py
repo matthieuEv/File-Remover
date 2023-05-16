@@ -17,3 +17,9 @@ def test_missing_arguments():
     result = subprocess.run(['python3', 'fileremover.py'], capture_output=True, text=True)
     assert result.returncode == 1
     assert result.stderr == 'Error: missing arguments\n'
+
+def test_extension_no_dot():
+    # test if the extension given has dot
+    result = subprocess.run(['python3', 'fileremover.py','--path','/mnt/d/Documents/Projets/file-sort/example_path','--rm',' json'], capture_output=True, text=True)
+    assert result.returncode == 1
+    assert result.stderr == 'Error: the extension to remove don\'t start with a dot\n'

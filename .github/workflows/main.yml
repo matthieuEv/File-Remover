@@ -39,38 +39,46 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-        - name: Create Release
-          id: create_release
-          uses: actions/create-release@v1
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            tag_name: ${{ github.ref_name }}
-            release_name: Release ${{ github.ref_name }}
-            draft: false
-            prerelease: false
+      - name: Bump version and push tag
+        id: tag_version
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
 
-        - name: Download artifacts
-          uses: actions/download-artifact@v2
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.1.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
+          release_name: Release ${{ steps.tag_version.outputs.new_tag }}
+          draft: false
+          prerelease: false
 
-        - name: Upload artifacts to release
-          uses: actions/github-script@v5
-          with:
-            script: |
-              const fs = require('fs');
-              const artifactPath = '${{github.workspace}}/artifact';
-              const files = fs.readdirSync(artifactPath);
-              for (const file of files) {
-                const filePath = `${artifactPath}/${file}`;
-                if (fs.lstatSync(filePath).isDirectory()) {
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: artifact
+      - name: Upload artifacts to release
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const fs = require('fs');
+            const artifactPath = '${{github.workspace}}/artifact';
+            const files = fs.readdirSync(artifactPath);
+            for (const file of files) {
+              const filePath = `${artifactPath}/${file}`;
+              if (fs.lstatSync(filePath).isDirectory()) {
                 continue;
-                }
-                const fileStream = fs.createReadStream(filePath);
-                await github.repos.uploadReleaseAsset({
+              }
+              const fileStream = fs.createReadStream(filePath);
+              await github.repos.uploadReleaseAsset({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 release_id: ${{steps.create_release.outputs.id}},
                 name: file,
                 data: fileStream,
-                });
-              }
+              });
+            }

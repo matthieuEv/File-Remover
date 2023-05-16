@@ -1,10 +1,12 @@
 import subprocess
+import tempfile
 
 def test_invalid_argument():
     # Test with an invalid argument
-    result = subprocess.run(['python3', 'fileremover.py', '--z', '/mnt/d/Documents/Projets/file-sort/example_path'], capture_output=True, text=True)
-    assert result.returncode == 1
-    assert result.stderr == 'Error: unknown argument --z\n'
+    with tempfile.TemporaryDirectory() as tmpdir:
+        result = subprocess.run(['python3', 'fileremover.py', '--z', tmpdir], capture_output=True, text=True)
+        assert result.returncode == 1
+        assert result.stderr == 'Error: unknown argument --z\n'
 
 def test_missing_path():
     # Test without the --path argument
@@ -20,6 +22,13 @@ def test_missing_arguments():
 
 def test_extension_no_dot():
     # test if the extension given has dot
-    result = subprocess.run(['python3', 'fileremover.py','--path','/mnt/d/Documents/Projets/file-sort/example_path','--rm',' json'], capture_output=True, text=True)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        result = subprocess.run(['python3', 'fileremover.py','--path', tmpdir,'--rm',' json'], capture_output=True, text=True)
+        assert result.returncode == 1
+        assert result.stderr == 'Error: the extension to remove don\'t start with a dot\n'
+
+def test_path_not_found():
+    # Test if the path given exists
+    result = subprocess.run(['python3', 'fileremover.py','--path', '/example/'], capture_output=True, text=True)
     assert result.returncode == 1
-    assert result.stderr == 'Error: the extension to remove don\'t start with a dot\n'
+    assert result.stderr == 'Error: the path given is not found\n'

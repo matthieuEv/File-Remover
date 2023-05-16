@@ -21,7 +21,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          repository: matthieuEv / File-Remover 
+          repository: matthieuEv/File-Remover 
           ref: master
       - name: Set up Python
         uses: actions/setup-python@v2

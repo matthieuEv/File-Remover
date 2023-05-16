@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [windows-latest, ubuntu-latest]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -60,6 +60,7 @@ jobs:
         with:
           tag_name: ${{ steps.tag_version.outputs.new_tag }}
           release_name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: Voila la nouvelle version de FileRemover 🔥
           draft: false
           prerelease: false
   
@@ -74,19 +75,24 @@ jobs:
           script: |
             const fs = require('fs');
             const artifactPath = '${{github.workspace}}/artifact';
-            const files = fs.readdirSync(artifactPath);
-            for (const file of files) {
-              const filePath = `${artifactPath}/${file}`;
-              if (fs.lstatSync(filePath).isDirectory()) {
-                continue;
+            const osList = ['windows-latest', 'ubuntu-latest'];
+            
+            for (const os of osList) {
+              const osArtifactPath = `${artifactPath}/${os}`;
+              const files = fs.readdirSync(osArtifactPath);
+              for (const file of files) {
+                const filePath = `${osArtifactPath}/${file}`;
+                if (fs.lstatSync(filePath).isDirectory()) {
+                  continue;
+                }
+                const fileStream = fs.createReadStream(filePath);
+                await github.repos.uploadReleaseAsset({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  release_id: ${{steps.create_release.outputs.id}},
+                  name: `${os}-${file}`,
+                  data: fileStream,
+                });
               }
-              const fileStream = fs.createReadStream(filePath);
-              await github.repos.uploadReleaseAsset({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                release_id: ${{steps.create_release.outputs.id}},
-                name: file,
-                data: fileStream,
-              });
             }
-          
+            

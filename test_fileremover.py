@@ -1,3 +1,5 @@
+#testfile for fileremover.py
+
 import subprocess
 import tempfile
 
